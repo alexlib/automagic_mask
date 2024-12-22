@@ -1,6 +1,7 @@
 
 import cv2
 import numpy as np
+import glob
 import matplotlib.pyplot as plt
 
 def create_simulated_ensemble(image, num_frames=5):
@@ -42,7 +43,9 @@ def dynamic_masking(image_ensemble):
     return masked_images, masks
 
 # Load the image
-image = cv2.imread("images/00000203.tif", cv2.IMREAD_GRAYSCALE)
+# image = cv2.imread("images/00000203.tif", cv2.IMREAD_GRAYSCALE)
+image_files = glob.glob("images/*.tif")
+images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in image_files]
 image_ensemble = create_simulated_ensemble(image, num_frames=5)
 
 masked_images, masks = dynamic_masking(image_ensemble)
