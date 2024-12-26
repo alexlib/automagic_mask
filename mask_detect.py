@@ -3,7 +3,25 @@ from scipy.stats import chi2
 from scipy.ndimage import median_filter
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
-from skimage.morphology import binary_closing, binary_fill_holes, binary_majority
+from skimage.morphology import binary_closing, remove_small_holes
+
+from scipy.ndimage import convolve
+
+def majority_filter(mask, iterations=5):
+    # Define a 3x3 kernel for the majority operation
+    kernel = np.ones((3, 3))
+    
+    for _ in range(iterations):
+        # Convolve the mask with the kernel
+        convolved = convolve(mask.astype(int), kernel, mode='constant', cval=0)
+        # Apply the majority rule
+        mask = convolved >= 5
+    
+    return mask
+
+# Apply the majority filter Nit times
+# mask = majority_filter(mask, Nit)
+
 
 def mask_detect(imdb, debug=False):
     CleanMask = True  # Morphological cleaning of the mask
@@ -71,11 +89,11 @@ def mask_detect(imdb, debug=False):
     # Morphological operations
     if CleanMask:
         mask = binary_closing(mask)
-        mask = binary_fill_holes(mask)
+        mask = remove_small_holes(mask)
         Nit = 5
         # Clean mask from spurious pixels
         for _ in range(Nit):
-            mask = binary_majority(mask)
+            mask = majority_filter(mask)
 
     return mask, p
 
